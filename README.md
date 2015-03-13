@@ -12,6 +12,7 @@ Clitable support:
 5. UTF-8
 
 [![GoDoc](https://godoc.org/github.com/byorty/clitable?status.svg)](https://godoc.org/github.com/byorty/clitable)
+[![Build Status](https://travis-ci.org/byorty/clitable.svg?branch=master)](https://travis-ci.org/byorty/clitable)
 
 
 
