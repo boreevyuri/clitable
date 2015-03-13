@@ -11,5 +11,7 @@ Clitable support:
 4. customization borders and corners
 5. UTF-8
 
+[![GoDoc](https://godoc.org/github.com/byorty/clitable?status.svg)](https://godoc.org/github.com/byorty/clitable)
+
 
 
