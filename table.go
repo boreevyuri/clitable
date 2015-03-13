@@ -22,8 +22,8 @@ type TableStyle struct {
 }
 
 type Table struct {
-	Columns    []*Column
-	ColumnsMap map[string]*Column
+	columns    []*Column
+	columnsMap map[string]*Column
 	Style      *TableStyle
 	rows       []*Row
 }
@@ -31,15 +31,15 @@ type Table struct {
 func NewTable(names ...interface{}) *Table {
 	table := &Table{
 		Style     : defaultTableStyle,
-		Columns   : make([]*Column, len(names)),
-		ColumnsMap: make(map[string]*Column),
+		columns   : make([]*Column, len(names)),
+		columnsMap: make(map[string]*Column),
 		rows      : make([]*Row, 0),
 	}
 	for i, rawName := range names {
 		name := rawName.(string)
 		column := NewColumn(name)
-		table.Columns[i] = column
-		table.ColumnsMap[name] = column
+		table.columns[i] = column
+		table.columnsMap[name] = column
 	}
 	table.addHeader(names...)
 	return table
@@ -59,7 +59,7 @@ func (this *Table) AddRow(datas ...interface{}) {
 func (this *Table) addRow(row *Row, datas ...interface{}) {
 	var data interface {}
 	datasLen := len(datas)
-	for i, _ := range this.Columns {
+	for i, _ := range this.columns {
 		if i >= 0 && i < datasLen {
 			data = datas[i]
 		} else {
@@ -85,7 +85,7 @@ func (this *Table) String() string {
 
 	for _, row := range this.rows {
 		for i, cell := range row.cells {
-			column := this.Columns[i]
+			column := this.columns[i]
 			style := column.getStyleByRow(row)
 			columnWidth := cell.width + style.PaddingLeft + style.PaddingRight
 			if column.width < columnWidth {
@@ -95,20 +95,20 @@ func (this *Table) String() string {
 	}
 
 	maxRowWidth := 0
-	for _, column := range this.Columns {
+	for _, column := range this.columns {
 		maxRowWidth += column.width
 	}
 
-	fullRowWidth := maxRowWidth + verticalBorderWidth * (len(this.Columns) + 1)
+	fullRowWidth := maxRowWidth + verticalBorderWidth * (len(this.columns) + 1)
 	winCol := int(WinSize.Col)
 
 	if fullRowWidth > winCol && winCol > 0 {
 		excess := float32(fullRowWidth - winCol)
 		maxExcess := excess
-		columnsCount := len(this.Columns)
+		columnsCount := len(this.columns)
 		meanColumnWidth := float32(maxRowWidth) / float32(columnsCount)
 		var currentRate float32
-		for _, column := range this.Columns {
+		for _, column := range this.columns {
 			rate := (100 * float32(column.width)) / float32(maxRowWidth)
 			currentRate += rate
 			if float32(column.width) + maxExcess - excess > meanColumnWidth {
@@ -119,7 +119,7 @@ func (this *Table) String() string {
 		}
 		for _, row := range this.rows {
 			for i, cell := range row.cells {
-				column := this.Columns[i]
+				column := this.columns[i]
 				style := column.getStyleByRow(row)
 				if cell.width > column.width {
 					columnWidth := column.width - (style.PaddingLeft + style.PaddingRight)
@@ -177,7 +177,7 @@ func (this *Table) String() string {
 		this.writeLine(buf, cornerWidth, verticalBorderWidth)
 		for x := 0;x < row.height;x++ {
 			for i, cell := range row.cells {
-				column := this.Columns[i]
+				column := this.columns[i]
 				style := column.getStyleByRow(row)
 				buf.WriteString(this.Style.VerticalBorder)
 				columnWidth := column.width - (style.PaddingLeft + style.PaddingRight)
@@ -227,7 +227,7 @@ func (this *Table) String() string {
 }
 
 func (this *Table) writeLine(buf *bytes.Buffer, cornerWidth, verticalBorderWidth int) {
-	for _, column := range this.Columns {
+	for _, column := range this.columns {
 		buf.WriteString(this.Style.Corner)
 		buf.WriteString(
 			strings.Repeat(
@@ -275,15 +275,15 @@ func (this *Table) createEmptyLine(width int) string {
 }
 
 func (this *Table) GetColumnByNum(i int) *Column {
-	if i >= 0 && i <= len(this.Columns) - 1 {
-		return this.Columns[i]
+	if i >= 0 && i <= len(this.columns) - 1 {
+		return this.columns[i]
 	} else {
 		return nil
 	}
 }
 
 func (this *Table) GetColumnByName(name string) *Column {
-	if column, ok := this.ColumnsMap[name]; ok {
+	if column, ok := this.columnsMap[name]; ok {
 		return column
 	} else {
 		return nil
