@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"unicode/utf8"
+	"math"
 )
 
 var (
@@ -103,19 +104,28 @@ func (this *Table) String() string {
 	winCol := int(WinSize.Col)
 
 	if fullRowWidth > winCol && winCol > 0 {
-		excess := float32(fullRowWidth - winCol)
+		excess := float64(fullRowWidth - winCol) + 5
 		maxExcess := excess
 		columnsCount := len(this.columns)
-		meanColumnWidth := float32(maxRowWidth) / float32(columnsCount)
-		var currentRate float32
-		for _, column := range this.columns {
-			rate := (100 * float32(column.width)) / float32(maxRowWidth)
+		meanColumnWidth := float64(maxRowWidth) / float64(columnsCount)
+		maxWidth := 0
+		maxWidthColumn := 0
+		var currentRate float64
+		for i, column := range this.columns {
+			rate := (100 * float64(column.width)) / float64(maxRowWidth)
 			currentRate += rate
-			if float32(column.width) + maxExcess - excess > meanColumnWidth {
+			if float64(column.width) + maxExcess - excess > meanColumnWidth {
 				excessColumn := excess * currentRate / 100
-				column.width -= int(excessColumn)
+				column.width -= int(math.Floor(excessColumn))
 				excess -= excessColumn
 			}
+			if maxWidth < column.width {
+				maxWidth = column.width
+				maxWidthColumn = i
+			}
+		}
+		if excess > 0 {
+			this.columns[maxWidthColumn].width -= int(math.Floor(excess))
 		}
 		for _, row := range this.rows {
 			for i, cell := range row.cells {

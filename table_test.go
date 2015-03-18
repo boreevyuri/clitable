@@ -57,7 +57,7 @@ func TestHeadersWithPadding(t *testing.T) {
 }
 
 func TestMultiLineHeader(t *testing.T) {
-	WinSize.Col = 19
+	WinSize.Col = 24
 	table := NewTable("id", "name", "too long header super name")
 	column := table.GetColumnByName("id")
 	column.HeaderStyle = &ColumnStyle{
@@ -83,7 +83,7 @@ func TestMultiLineHeader(t *testing.T) {
 }
 
 func TestMultiLineHeaderWithBody(t *testing.T) {
-	WinSize.Col = 26
+	WinSize.Col = 31
 	table := NewTable("id", "name", "too long header super name")
 	column := table.GetColumnByName("id")
 	column.HeaderStyle = &ColumnStyle{
@@ -130,7 +130,7 @@ func TestMultiLineHeaderWithBody(t *testing.T) {
 }
 
 func TestMultiLineBody(t *testing.T) {
-	WinSize.Col = 100
+	WinSize.Col = 105
 	table := NewTable("id", "name", "description", "short description")
 	column := table.GetColumnByName("id")
 	column.HeaderStyle = &ColumnStyle{
@@ -208,7 +208,7 @@ func TestMultiLineBody(t *testing.T) {
 }
 
 func TestCyrillicMultiLineBody(t *testing.T) {
-	WinSize.Col = 150
+	WinSize.Col = 155
 	table := NewTable("#", "Имя", "Описание", "Короткое описание")
 	column := table.GetColumnByName("#")
 	column.HeaderStyle = &ColumnStyle{
