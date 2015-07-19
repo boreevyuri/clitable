@@ -12,10 +12,10 @@ type Cell struct {
 	width    int
 }
 
-func NewCell(data interface {}) *Cell {
+func NewCell(data interface{}) *Cell {
 	str := fmt.Sprintf("%v", data)
 	return &Cell{
-		data: str,
+		data:  str,
 		width: utf8.RuneCountInString(str),
 	}
 }

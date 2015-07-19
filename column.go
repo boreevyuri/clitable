@@ -4,11 +4,11 @@ import "unicode/utf8"
 
 var (
 	defaultHeaderStyle = &ColumnStyle{
-		Align: ColumnAlignCenter,
+		Align:         ColumnAlignCenter,
 		VerticalAlign: ColumnVerticalAlignMiddle,
 	}
 	defaultBodyStyle = &ColumnStyle{
-		Align: ColumnAlignLeft,
+		Align:         ColumnAlignLeft,
 		VerticalAlign: ColumnVerticalAlignTop,
 	}
 )
@@ -16,7 +16,7 @@ var (
 type ColumnAlign int
 
 const (
-	ColumnAlignLeft   = iota
+	ColumnAlignLeft = iota
 	ColumnAlignCenter
 	ColumnAlignRight
 )
@@ -24,7 +24,7 @@ const (
 type ColumnVerticalAlign int
 
 const (
-	ColumnVerticalAlignTop    = iota
+	ColumnVerticalAlignTop = iota
 	ColumnVerticalAlignMiddle
 	ColumnVerticalAlignBottom
 )
@@ -46,9 +46,9 @@ type Column struct {
 
 func NewColumn(name string) *Column {
 	return &Column{
-		width      : utf8.RuneCountInString(name),
+		width:       utf8.RuneCountInString(name),
 		HeaderStyle: defaultHeaderStyle,
-		BodyStyle  : defaultBodyStyle,
+		BodyStyle:   defaultBodyStyle,
 	}
 }
 

@@ -3,23 +3,23 @@ package clitable
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"strings"
 	"unicode/utf8"
-	"math"
 )
 
 var (
 	defaultTableStyle = &TableStyle{
-		VerticalBorder   : "|",
-		HorizontalBorder : "-",
-		Corner           : "+",
+		VerticalBorder:   "|",
+		HorizontalBorder: "-",
+		Corner:           "+",
 	}
 )
 
 type TableStyle struct {
-	VerticalBorder      string
-	HorizontalBorder    string
-	Corner              string
+	VerticalBorder   string
+	HorizontalBorder string
+	Corner           string
 }
 
 type Table struct {
@@ -31,10 +31,10 @@ type Table struct {
 
 func NewTable(names ...interface{}) *Table {
 	table := &Table{
-		Style     : defaultTableStyle,
-		columns   : make([]*Column, len(names)),
+		Style:      defaultTableStyle,
+		columns:    make([]*Column, len(names)),
 		columnsMap: make(map[string]*Column),
-		rows      : make([]*Row, 0),
+		rows:       make([]*Row, 0),
 	}
 	for i, rawName := range names {
 		name := rawName.(string)
@@ -58,7 +58,7 @@ func (this *Table) AddRow(datas ...interface{}) {
 }
 
 func (this *Table) addRow(row *Row, datas ...interface{}) {
-	var data interface {}
+	var data interface{}
 	datasLen := len(datas)
 	for i, _ := range this.columns {
 		if i >= 0 && i < datasLen {
@@ -100,11 +100,11 @@ func (this *Table) String() string {
 		maxRowWidth += column.width
 	}
 
-	fullRowWidth := maxRowWidth + verticalBorderWidth * (len(this.columns) + 1)
+	fullRowWidth := maxRowWidth + verticalBorderWidth*(len(this.columns)+1)
 	winCol := int(WinSize.Col)
 
 	if fullRowWidth > winCol && winCol > 0 {
-		excess := float64(fullRowWidth - winCol) + 5
+		excess := float64(fullRowWidth-winCol) + 5
 		maxExcess := excess
 		columnsCount := len(this.columns)
 		meanColumnWidth := float64(maxRowWidth) / float64(columnsCount)
@@ -114,7 +114,7 @@ func (this *Table) String() string {
 		for i, column := range this.columns {
 			rate := (100 * float64(column.width)) / float64(maxRowWidth)
 			currentRate += rate
-			if float64(column.width) + maxExcess - excess > meanColumnWidth {
+			if float64(column.width)+maxExcess-excess > meanColumnWidth {
 				excessColumn := excess * currentRate / 100
 				column.width -= int(math.Floor(excessColumn))
 				excess -= excessColumn
@@ -138,15 +138,15 @@ func (this *Table) String() string {
 					lastStrPart := srcPartsLen - 1
 					dstParts := make([]string, 0)
 					cellBuf := new(bytes.Buffer)
-					for j := 0;j < srcPartsLen;j++ {
+					for j := 0; j < srcPartsLen; j++ {
 						srcPart := srcParts[j]
 						srcPartLen := utf8.RuneCountInString(srcPart)
 						if srcPartLen > columnWidth {
-							dstParts = append(dstParts, srcPart[0:column.width - 1])
+							dstParts = append(dstParts, srcPart[0:column.width-1])
 						} else {
 							cellBufNextLen := utf8.RuneCount(cellBuf.Bytes()) + srcPartLen
 							if cellBufNextLen < columnWidth {
-								if cellBufNextLen + 1 < columnWidth {
+								if cellBufNextLen+1 < columnWidth {
 									cellBuf.WriteString(srcPart)
 									cellBuf.WriteString(WS)
 								} else {
@@ -185,13 +185,13 @@ func (this *Table) String() string {
 	buf := new(bytes.Buffer)
 	for _, row := range this.rows {
 		this.writeLine(buf, cornerWidth, verticalBorderWidth)
-		for x := 0;x < row.height;x++ {
+		for x := 0; x < row.height; x++ {
 			for i, cell := range row.cells {
 				column := this.columns[i]
 				style := column.getStyleByRow(row)
 				buf.WriteString(this.Style.VerticalBorder)
 				columnWidth := column.width - (style.PaddingLeft + style.PaddingRight)
-				if x < style.PaddingTop || x > row.height - style.PaddingBottom {
+				if x < style.PaddingTop || x > row.height-style.PaddingBottom {
 					buf.WriteString(this.createEmptyLine(columnWidth))
 				} else {
 					this.writeHorizontalPadding(buf, style.PaddingLeft)
@@ -201,7 +201,7 @@ func (this *Table) String() string {
 						case ColumnVerticalAlignTop:
 							start += style.PaddingTop
 						case ColumnVerticalAlignMiddle:
-							start = (row.height - cell.partsLen) / 2 + style.PaddingTop
+							start = (row.height-cell.partsLen)/2 + style.PaddingTop
 						case ColumnVerticalAlignBottom:
 							start = row.height - cell.partsLen
 						}
@@ -215,9 +215,12 @@ func (this *Table) String() string {
 					} else {
 						var j int
 						switch style.VerticalAlign {
-						case ColumnVerticalAlignTop: j = style.PaddingTop
-						case ColumnVerticalAlignMiddle: j = (row.height - (style.PaddingTop + style.PaddingBottom)) / 2 + style.PaddingTop
-						case ColumnVerticalAlignBottom: j = row.height - 1 - style.PaddingBottom
+						case ColumnVerticalAlignTop:
+							j = style.PaddingTop
+						case ColumnVerticalAlignMiddle:
+							j = (row.height-(style.PaddingTop+style.PaddingBottom))/2 + style.PaddingTop
+						case ColumnVerticalAlignBottom:
+							j = row.height - 1 - style.PaddingBottom
 						}
 						if x == j {
 							this.writeCell(buf, columnWidth, cell.width, cell.data, style)
@@ -242,7 +245,7 @@ func (this *Table) writeLine(buf *bytes.Buffer, cornerWidth, verticalBorderWidth
 		buf.WriteString(
 			strings.Repeat(
 				this.Style.HorizontalBorder,
-				verticalBorderWidth + column.width - cornerWidth,
+				verticalBorderWidth+column.width-cornerWidth,
 			),
 		)
 	}
@@ -270,7 +273,7 @@ func (this *Table) writeCell(buf *bytes.Buffer, columnWidth, cellWidth int, data
 		}
 		buf.WriteString(data)
 		if isWriteWhiteSpace {
-			buf.WriteString(strings.Repeat(WS, diff - side))
+			buf.WriteString(strings.Repeat(WS, diff-side))
 		}
 	case ColumnAlignRight:
 		if isWriteWhiteSpace {
@@ -285,7 +288,7 @@ func (this *Table) createEmptyLine(width int) string {
 }
 
 func (this *Table) GetColumnByNum(i int) *Column {
-	if i >= 0 && i <= len(this.columns) - 1 {
+	if i >= 0 && i <= len(this.columns)-1 {
 		return this.columns[i]
 	} else {
 		return nil

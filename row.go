@@ -8,7 +8,7 @@ type Row struct {
 
 func NewRow() *Row {
 	return &Row{
-		height : 1,
-		cells  : make([]*Cell, 0),
+		height: 1,
+		cells:  make([]*Cell, 0),
 	}
 }
