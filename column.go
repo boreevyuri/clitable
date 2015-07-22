@@ -52,10 +52,10 @@ func NewColumn(name string) *Column {
 	}
 }
 
-func (this *Column) getStyleByRow(row *Row) *ColumnStyle {
+func (c *Column) getStyleByRow(row *Row) *ColumnStyle {
 	if row.isHeader {
-		return this.HeaderStyle
+		return c.HeaderStyle
 	} else {
-		return this.BodyStyle
+		return c.BodyStyle
 	}
 }

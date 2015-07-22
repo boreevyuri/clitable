@@ -46,21 +46,21 @@ func NewTable(names ...interface{}) *Table {
 	return table
 }
 
-func (this *Table) addHeader(datas ...interface{}) {
+func (t *Table) addHeader(datas ...interface{}) {
 	row := NewRow()
 	row.isHeader = true
-	this.addRow(row, datas...)
+	t.addRow(row, datas...)
 }
 
-func (this *Table) AddRow(datas ...interface{}) {
+func (t *Table) AddRow(datas ...interface{}) {
 	row := NewRow()
-	this.addRow(row, datas...)
+	t.addRow(row, datas...)
 }
 
-func (this *Table) addRow(row *Row, datas ...interface{}) {
+func (t *Table) addRow(row *Row, datas ...interface{}) {
 	var data interface{}
 	datasLen := len(datas)
-	for i, _ := range this.columns {
+	for i, _ := range t.columns {
 		if i >= 0 && i < datasLen {
 			data = datas[i]
 		} else {
@@ -69,24 +69,24 @@ func (this *Table) addRow(row *Row, datas ...interface{}) {
 		cell := NewCell(data)
 		row.cells = append(row.cells, cell)
 	}
-	this.rows = append(this.rows, row)
+	t.rows = append(t.rows, row)
 }
 
-func (this *Table) getVerticalBorderWidth() int {
-	return utf8.RuneCountInString(this.Style.VerticalBorder)
+func (t *Table) getVerticalBorderWidth() int {
+	return utf8.RuneCountInString(t.Style.VerticalBorder)
 }
 
-func (this *Table) Print() {
-	fmt.Print(this.String())
+func (t *Table) Print() {
+	fmt.Print(t.String())
 }
 
-func (this *Table) String() string {
-	cornerWidth := utf8.RuneCountInString(this.Style.Corner)
-	verticalBorderWidth := this.getVerticalBorderWidth()
+func (t *Table) String() string {
+	cornerWidth := utf8.RuneCountInString(t.Style.Corner)
+	verticalBorderWidth := t.getVerticalBorderWidth()
 
-	for _, row := range this.rows {
+	for _, row := range t.rows {
 		for i, cell := range row.cells {
-			column := this.columns[i]
+			column := t.columns[i]
 			style := column.getStyleByRow(row)
 			columnWidth := cell.width + style.PaddingLeft + style.PaddingRight
 			if column.width < columnWidth {
@@ -96,22 +96,22 @@ func (this *Table) String() string {
 	}
 
 	maxRowWidth := 0
-	for _, column := range this.columns {
+	for _, column := range t.columns {
 		maxRowWidth += column.width
 	}
 
-	fullRowWidth := maxRowWidth + verticalBorderWidth*(len(this.columns)+1)
+	fullRowWidth := maxRowWidth + verticalBorderWidth*(len(t.columns)+1)
 	winCol := int(WinSize.Col)
 
 	if fullRowWidth > winCol && winCol > 0 {
 		excess := float64(fullRowWidth-winCol) + 5
 		maxExcess := excess
-		columnsCount := len(this.columns)
+		columnsCount := len(t.columns)
 		meanColumnWidth := float64(maxRowWidth) / float64(columnsCount)
 		maxWidth := 0
 		maxWidthColumn := 0
 		var currentRate float64
-		for i, column := range this.columns {
+		for i, column := range t.columns {
 			rate := (100 * float64(column.width)) / float64(maxRowWidth)
 			currentRate += rate
 			if float64(column.width)+maxExcess-excess > meanColumnWidth {
@@ -125,11 +125,11 @@ func (this *Table) String() string {
 			}
 		}
 		if excess > 0 {
-			this.columns[maxWidthColumn].width -= int(math.Floor(excess))
+			t.columns[maxWidthColumn].width -= int(math.Floor(excess))
 		}
-		for _, row := range this.rows {
+		for _, row := range t.rows {
 			for i, cell := range row.cells {
-				column := this.columns[i]
+				column := t.columns[i]
 				style := column.getStyleByRow(row)
 				if cell.width > column.width {
 					columnWidth := column.width - (style.PaddingLeft + style.PaddingRight)
@@ -183,18 +183,18 @@ func (this *Table) String() string {
 	}
 
 	buf := new(bytes.Buffer)
-	for _, row := range this.rows {
-		this.writeLine(buf, cornerWidth, verticalBorderWidth)
+	for _, row := range t.rows {
+		t.writeLine(buf, cornerWidth, verticalBorderWidth)
 		for x := 0; x < row.height; x++ {
 			for i, cell := range row.cells {
-				column := this.columns[i]
+				column := t.columns[i]
 				style := column.getStyleByRow(row)
-				buf.WriteString(this.Style.VerticalBorder)
+				buf.WriteString(t.Style.VerticalBorder)
 				columnWidth := column.width - (style.PaddingLeft + style.PaddingRight)
 				if x < style.PaddingTop || x > row.height-style.PaddingBottom {
-					buf.WriteString(this.createEmptyLine(columnWidth))
+					buf.WriteString(t.createEmptyLine(columnWidth))
 				} else {
-					this.writeHorizontalPadding(buf, style.PaddingLeft)
+					t.writeHorizontalPadding(buf, style.PaddingLeft)
 					if cell.partsLen > 0 {
 						var start int
 						switch style.VerticalAlign {
@@ -208,9 +208,9 @@ func (this *Table) String() string {
 						end := cell.partsLen + start
 						if x >= start && x < end {
 							j := x - start
-							this.writeCell(buf, columnWidth, utf8.RuneCountInString(cell.parts[j]), cell.parts[j], style)
+							t.writeCell(buf, columnWidth, utf8.RuneCountInString(cell.parts[j]), cell.parts[j], style)
 						} else {
-							buf.WriteString(this.createEmptyLine(columnWidth))
+							buf.WriteString(t.createEmptyLine(columnWidth))
 						}
 					} else {
 						var j int
@@ -223,41 +223,41 @@ func (this *Table) String() string {
 							j = row.height - 1 - style.PaddingBottom
 						}
 						if x == j {
-							this.writeCell(buf, columnWidth, cell.width, cell.data, style)
+							t.writeCell(buf, columnWidth, cell.width, cell.data, style)
 						} else {
-							buf.WriteString(this.createEmptyLine(columnWidth))
+							buf.WriteString(t.createEmptyLine(columnWidth))
 						}
 					}
-					this.writeHorizontalPadding(buf, style.PaddingRight)
+					t.writeHorizontalPadding(buf, style.PaddingRight)
 				}
 			}
-			buf.WriteString(this.Style.VerticalBorder)
+			buf.WriteString(t.Style.VerticalBorder)
 			buf.Write(EOL)
 		}
 	}
-	this.writeLine(buf, cornerWidth, verticalBorderWidth)
+	t.writeLine(buf, cornerWidth, verticalBorderWidth)
 	return buf.String()
 }
 
-func (this *Table) writeLine(buf *bytes.Buffer, cornerWidth, verticalBorderWidth int) {
-	for _, column := range this.columns {
-		buf.WriteString(this.Style.Corner)
+func (t *Table) writeLine(buf *bytes.Buffer, cornerWidth, verticalBorderWidth int) {
+	for _, column := range t.columns {
+		buf.WriteString(t.Style.Corner)
 		buf.WriteString(
 			strings.Repeat(
-				this.Style.HorizontalBorder,
+				t.Style.HorizontalBorder,
 				verticalBorderWidth+column.width-cornerWidth,
 			),
 		)
 	}
-	buf.WriteString(this.Style.Corner)
+	buf.WriteString(t.Style.Corner)
 	buf.Write(EOL)
 }
 
-func (this *Table) writeHorizontalPadding(buf *bytes.Buffer, width int) {
-	buf.WriteString(this.createEmptyLine(width))
+func (t *Table) writeHorizontalPadding(buf *bytes.Buffer, width int) {
+	buf.WriteString(t.createEmptyLine(width))
 }
 
-func (this *Table) writeCell(buf *bytes.Buffer, columnWidth, cellWidth int, data string, style *ColumnStyle) {
+func (t *Table) writeCell(buf *bytes.Buffer, columnWidth, cellWidth int, data string, style *ColumnStyle) {
 	isWriteWhiteSpace := columnWidth > cellWidth
 	diff := columnWidth - cellWidth
 	switch style.Align {
@@ -283,22 +283,26 @@ func (this *Table) writeCell(buf *bytes.Buffer, columnWidth, cellWidth int, data
 	}
 }
 
-func (this *Table) createEmptyLine(width int) string {
+func (t *Table) createEmptyLine(width int) string {
 	return strings.Repeat(WS, width)
 }
 
-func (this *Table) GetColumnByNum(i int) *Column {
-	if i >= 0 && i <= len(this.columns)-1 {
-		return this.columns[i]
+func (t *Table) GetColumnByNum(i int) *Column {
+	if i >= 0 && i <= len(t.columns)-1 {
+		return t.columns[i]
 	} else {
 		return nil
 	}
 }
 
-func (this *Table) GetColumnByName(name string) *Column {
-	if column, ok := this.columnsMap[name]; ok {
+func (t *Table) GetColumnByName(name string) *Column {
+	if column, ok := t.columnsMap[name]; ok {
 		return column
 	} else {
 		return nil
 	}
+}
+
+func (t *Table) Clean() {
+	t.rows = append([]*Row{}, t.rows[0])
 }
